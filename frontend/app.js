@@ -2,7 +2,7 @@ async function analyze() {
   const text = document.getElementById("input").value;
   const out = document.getElementById("output");
 
-  out.innerHTML = "Analyzing with AI...";
+  out.innerHTML = "Analyzing with Gemini AI...";
 
   const res = await fetch("http://localhost:5000/analyze", {
     method: "POST",
@@ -10,16 +10,13 @@ async function analyze() {
     body: JSON.stringify({ message: text })
   });
 
-  const data = await res.json();
-
-  let cls = "low";
-  if (data.level === "High Risk") cls = "high";
-  else if (data.level === "Suspicious") cls = "medium";
+  const d = await res.json();
 
   out.innerHTML = `
-    <h3 class="${cls}">${data.level}</h3>
-    <p><strong>Risk Score:</strong> ${data.score}/100</p>
-    <p><strong>AI Confidence:</strong> ${data.aiConfidence}</p>
-    <ul>${data.explanation.map(e => `<li>${e}</li>`).join("")}</ul>
+    <h3>${d.risk_level}</h3>
+    <p><b>Risk Score:</b> ${d.risk_score}</p>
+    <p><b>Detected Language:</b> ${d.language}</p>
+    <p><b>Bank Decision:</b> ${d.bankDecision.message}</p>
+    <ul>${d.reasons.map(r => `<li>${r}</li>`).join("")}</ul>
   `;
 }
