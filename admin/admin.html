@@ -1,0 +1,9 @@
+<script>
+fetch("http://localhost:5000/admin/logs")
+  .then(r => r.json())
+  .then(data => {
+    document.body.innerHTML = data.map(
+      l => `<p>${l.time} – ${l.risk_level} – ${l.risk_score}</p>`
+    ).join("");
+  });
+</script>
