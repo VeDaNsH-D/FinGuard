@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { analyzeMessageAI } from "./aiAnalyzer.js";
+import { analyzeWithGemini } from "./geminiAnalyzer.js";
 
 dotenv.config();
 const app = express();
@@ -12,15 +12,15 @@ app.use(express.json());
 app.post("/analyze", async (req, res) => {
   try {
     const { message } = req.body;
-    if (!message) {
-      return res.status(400).json({ error: "Message required" });
+    if (!message || message.trim() === "") {
+      return res.status(400).json({ error: "Message is required" });
     }
 
-    const result = await analyzeMessageAI(message);
-    res.json(result);
+    const analysis = await analyzeWithGemini(message);
+    res.json(analysis);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "AI analysis failed" });
+    console.error(err);
+    res.status(500).json({ error: "Gemini analysis failed" });
   }
 });
 
