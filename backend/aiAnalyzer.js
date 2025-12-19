@@ -1,51 +1,30 @@
-import axios from "axios";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const HF_MODEL =
-  "https://api-inference.huggingface.co/models/mrm8488/bert-tiny-finetuned-sms-spam-detection";
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-export async function analyzeMessageAI(message) {
-  const response = await axios.post(
-    HF_MODEL,
-    { inputs: message },
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.HF_API_KEY}`,
-        "Content-Type": "application/json"
-      }
-    }
-  );
+export async function analyzeWithGemini(message) {
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  const prediction = response.data[0];
+  const prompt = `
+You are a financial cybersecurity expert.
 
-  const spamScore = prediction.find(p => p.label === "spam")?.score || 0;
-  const hamScore = prediction.find(p => p.label === "ham")?.score || 0;
+Analyze the following message and determine if it is a financial scam.
 
-  const riskScore = Math.round(spamScore * 100);
+Return the response strictly in JSON format with:
+- risk_score (0 to 100)
+- risk_level ("Safe", "Suspicious", "High Risk")
+- reasons (array of short bullet points)
 
-  let level = "Safe";
-  if (riskScore > 75) level = "High Risk";
-  else if (riskScore > 40) level = "Suspicious";
+Message:
+"""
+${message}
+"""
+`;
 
-  return {
-    score: riskScore,
-    level,
-    aiConfidence: spamScore.toFixed(2),
-    explanation: generateExplanation(message)
-  };
-}
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
 
-function generateExplanation(text) {
-  const reasons = [];
-
-  if (/http|www\./i.test(text)) reasons.push("Contains external links");
-  if (/urgent|immediately|blocked|suspended/i.test(text))
-    reasons.push("Uses urgency or fear tactics");
-  if (/otp|pin|password|cvv/i.test(text))
-    reasons.push("Requests sensitive credentials");
-  if (/bank|upi|account|kyc/i.test(text))
-    reasons.push("Impersonates financial institution");
-
-  return reasons.length
-    ? reasons
-    : ["Message structure matches known scam patterns"];
+  // Gemini may wrap JSON in markdown, so we clean it
+  const cleaned = text.replace(/```json|```/g, "").trim();
+  return JSON.parse(cleaned);
 }
