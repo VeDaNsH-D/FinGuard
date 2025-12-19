@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>FinGuard – Fraud Detector</title>
-  <link rel="stylesheet" href="style.css">
+  <title>FinGuard AI</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-  <div class="container">
+  <div class="app">
     <h1>FinGuard</h1>
-    <p>Paste a suspicious message below</p>
+    <p>AI-powered fraud detection for financial messages</p>
 
-    <textarea id="message" placeholder="Paste SMS / Email / Message here..."></textarea>
-    <button onclick="analyze()">Analyze Message</button>
+    <textarea id="input" placeholder="Paste suspicious message here..."></textarea>
+    <button onclick="analyze()">Analyze with AI</button>
 
-    <div id="result"></div>
+    <div id="output"></div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
