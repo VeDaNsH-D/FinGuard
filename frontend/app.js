@@ -4,7 +4,7 @@ async function analyze() {
 
   out.innerHTML = "Analyzing with Gemini AI...";
 
-  const res = await fetch("http://localhost:5000/analyze", {
+  const res = await fetch("https://finguard-v00q.onrender.com/analyze", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: text })
